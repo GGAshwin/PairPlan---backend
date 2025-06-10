@@ -44,6 +44,7 @@ public class ChecklistEntity {
 	private Date createdAt = new Date();
 
 	@OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL)
+	@Column(nullable = true)
 	private List<ChecklistItemEntity> items;
 
 }

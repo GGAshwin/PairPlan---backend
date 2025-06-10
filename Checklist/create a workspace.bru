@@ -4,8 +4,14 @@ meta {
   seq: 5
 }
 
-get {
+post {
   url: http://localhost:8080/workspace/
-  body: none
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "user_id":"ed43baa1-6fc0-4279-aaf3-c5261d50a689"
+  }
 }

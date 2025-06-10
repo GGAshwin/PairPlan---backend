@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dev.project.DTO.JoinDTO;
 import com.dev.project.Entity.UserEntity;
 import com.dev.project.Entity.WorkspaceEntity;
+import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
 import com.dev.project.Repository.WorkspaceRepository;
 import com.dev.project.Service.WorkspaceService;
@@ -33,6 +34,7 @@ public class UserController {
 		this.userRepository = userRepository;
 		this.workspaceRepository = workspaceRepository;
 		this.workspaceService = workspaceService;
+
 	}
 
 	// Create a new user
