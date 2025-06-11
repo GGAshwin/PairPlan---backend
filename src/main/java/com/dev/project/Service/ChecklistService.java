@@ -3,6 +3,8 @@ package com.dev.project.Service;
 import org.springframework.stereotype.Service;
 
 import com.dev.project.DTO.ChecklistCreateDTO;
+import com.dev.project.Entity.ChecklistEntity;
+import com.dev.project.Entity.UserEntity;
 import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
 import com.dev.project.Repository.WorkspaceRepository;
@@ -11,6 +13,15 @@ import com.dev.project.Repository.WorkspaceRepository;
 public class ChecklistService {
 	public void createChecklist(ChecklistCreateDTO checkListRequest, WorkspaceRepository workspaceRepository,
 								UserRepository userRepository, ChecklistRepository checklistRepository) {
+		// chcek if name of checklist already exists in the workspace
+		// if this throws an exception it means that the checklist already exists
+		if (checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(), checkListRequest.getWorkspaceId()).isPresent()) {
+			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' already exists in the workspace");
+		}
+
+//		if (existingChecklist) {
+//			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' already exists in the workspace");
+//		}
 		// Validate the request
 		if (checkListRequest.getTitle() == null || checkListRequest.getTitle().isEmpty()) {
 			throw new IllegalArgumentException("Checklist title cannot be empty");
@@ -41,5 +52,41 @@ public class ChecklistService {
 		}
 		// Create the checklist
 		checklistRepository.save(checkListRequest.toChecklistEntity(workspace.get(), userExists.get()));
+	}
+
+	public void deleteChecklist(ChecklistCreateDTO checkListRequest, ChecklistRepository checklistRepository) {
+		// Validate the request
+		if (checkListRequest.getTitle() == null || checkListRequest.getTitle().isEmpty()) {
+			throw new IllegalArgumentException("Checklist title cannot be empty");
+		}
+		if (checkListRequest.getWorkspaceId() == null) {
+			throw new IllegalArgumentException("Workspace ID cannot be null");
+		}
+		if (checkListRequest.getCreatedById() == null) {
+			throw new IllegalArgumentException("Created by ID cannot be null");
+		}
+
+		var checklistOptional = checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(), checkListRequest.getWorkspaceId());
+
+		if (checklistOptional.isEmpty()) {
+			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' does not exist in the workspace");
+		}
+
+		checklistRepository.delete(checklistOptional.get());
+	}
+
+	public ChecklistEntity getMyChecklists(UserEntity user, ChecklistRepository checklistRepository) {
+		if (user == null || user.getId() == null) {
+			throw new IllegalArgumentException("User is not authenticated or does not have an ID");
+		}
+
+		// Fetch all checklists created by the user
+		var checklists = checklistRepository.findAllByCreatedById(user.getId());
+
+		if (checklists.isEmpty()) {
+			throw new IllegalArgumentException("No checklists found for user with ID " + user.getId());
+		}
+
+		return checklists.get(0); // Return the first checklist for simplicity, can be modified to return all
 	}
 }

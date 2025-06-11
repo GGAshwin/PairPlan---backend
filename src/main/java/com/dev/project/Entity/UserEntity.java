@@ -36,6 +36,8 @@ public class UserEntity {
 	@Column(unique = true)
 	private String name;
 
+	private String password;
+
 	@ManyToOne
 	@JoinColumn(name = "workspace_id", nullable = true)
 	@JsonIgnore

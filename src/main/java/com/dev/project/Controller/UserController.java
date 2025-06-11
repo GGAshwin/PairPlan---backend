@@ -19,6 +19,8 @@ import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
 import com.dev.project.Repository.WorkspaceRepository;
 import com.dev.project.Service.WorkspaceService;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+
 
 @RestController
 @RequestMapping("/users")
@@ -42,16 +44,18 @@ public class UserController {
 	public UUID createUser(@RequestBody UserEntity userRequest) {
 		// derive workspace details from the user details, save the workspace details then save the user details as
 		// it requires the workspace details to be saved first
-//		WorkspaceEntity newWorkspace = workspaceService.createWorkspace(userRequest);
-//		workspaceRepository.save(newWorkspace); // Save the workspace entity first
-//		userRequest.setWorkspace(newWorkspace);
+		String encryptedPassword = BCrypt.hashpw(userRequest.getPassword(), BCrypt.gensalt());
+		userRequest.setPassword(encryptedPassword);
+
 		userRepository.save(userRequest);
 
 		System.out.println(userRepository.findAll());
-//		System.out.println(workspaceRepository.findAll());
 		return userRequest.getId();
 
 	}
+
+
+
 
 	@PostMapping("/join")
 	public ResponseEntity<String> joinWorkspace(@RequestBody JoinDTO joinRequest){

@@ -29,7 +29,7 @@ public class ChecklistEntity {
 	@Id
 	@GeneratedValue
 	private UUID id;
-
+	@Column(nullable = false, unique = true)
 	private String title;
 
 	@ManyToOne

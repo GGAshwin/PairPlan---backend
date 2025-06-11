@@ -1,5 +1,6 @@
 package com.dev.project.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,4 +14,7 @@ import com.dev.project.Entity.WorkspaceEntity;
 public interface ChecklistRepository extends JpaRepository<ChecklistEntity, UUID> {
 	Optional<ChecklistEntity> findByTitle(String title);
 
+	Optional<ChecklistEntity> findByTitleAndWorkspaceId(String title, UUID workspaceId);
+
+	List<ChecklistEntity> findAllByCreatedById(UUID createdById);
 }
