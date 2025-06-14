@@ -54,9 +54,6 @@ public class UserController {
 
 	}
 
-
-
-
 	@PostMapping("/join")
 	public ResponseEntity<String> joinWorkspace(@RequestBody JoinDTO joinRequest){
 		//null check
@@ -95,8 +92,6 @@ public class UserController {
 		else{
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
 		}
-
-
 
 	}
 

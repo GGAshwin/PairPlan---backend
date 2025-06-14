@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dev.project.Component.JwtUtil;
 import com.dev.project.DTO.LoginDTO;
 import com.dev.project.Repository.UserRepository;
 
@@ -18,26 +19,25 @@ import com.dev.project.Repository.UserRepository;
 @RequestMapping("/auth")
 public class AuthController {
 	private final UserRepository userRepository;
+	private final JwtUtil jwtUtil;
 
 	@Autowired
-	public AuthController(UserRepository userRepository) {
+	public AuthController(UserRepository userRepository, JwtUtil jwtUtil) {
 		this.userRepository = userRepository;
+		this.jwtUtil = jwtUtil;
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody LoginDTO loginRequest) {
 		var user = userRepository.findByName(loginRequest.getName());
 		if (user.isPresent() && BCrypt.checkpw(loginRequest.getPassword(), user.get().getPassword())) {
-			// Generate JWT or session token
-			UsernamePasswordAuthenticationToken authentication =
-					new UsernamePasswordAuthenticationToken(user.get(), null, null);
+			// ✅ Generate JWT token using the username
+			String token = jwtUtil.generateToken(user.get().getName());
 
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			SecurityContextHolder.setContext(SecurityContextHolder.getContext());
-			System.out.println(SecurityContextHolder.getContext().getAuthentication());
-
-			return ResponseEntity.ok("Login successful");
+			// ✅ Return token in response body
+			return ResponseEntity.ok(token);
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
 	}
+
 }

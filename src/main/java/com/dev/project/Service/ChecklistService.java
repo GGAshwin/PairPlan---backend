@@ -1,5 +1,7 @@
 package com.dev.project.Service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.dev.project.DTO.ChecklistCreateDTO;
@@ -15,8 +17,9 @@ public class ChecklistService {
 								UserRepository userRepository, ChecklistRepository checklistRepository) {
 		// chcek if name of checklist already exists in the workspace
 		// if this throws an exception it means that the checklist already exists
-		if (checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(), checkListRequest.getWorkspaceId()).isPresent()) {
-			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' already exists in the workspace");
+		var existingChecklist = checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(), checkListRequest.getWorkspaceId());
+		if (existingChecklist.isPresent()) {
+			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' already exists in the workspace with ID " + checkListRequest.getWorkspaceId());
 		}
 
 //		if (existingChecklist) {
@@ -75,7 +78,7 @@ public class ChecklistService {
 		checklistRepository.delete(checklistOptional.get());
 	}
 
-	public ChecklistEntity getMyChecklists(UserEntity user, ChecklistRepository checklistRepository) {
+	public List<ChecklistCreateDTO> getMyChecklists(UserEntity user, ChecklistRepository checklistRepository) {
 		if (user == null || user.getId() == null) {
 			throw new IllegalArgumentException("User is not authenticated or does not have an ID");
 		}
@@ -83,10 +86,20 @@ public class ChecklistService {
 		// Fetch all checklists created by the user
 		var checklists = checklistRepository.findAllByCreatedById(user.getId());
 
+		System.out.println(checklists);
+
 		if (checklists.isEmpty()) {
 			throw new IllegalArgumentException("No checklists found for user with ID " + user.getId());
 		}
 
-		return checklists.get(0); // Return the first checklist for simplicity, can be modified to return all
+		//convert entity to dto
+
+		return checklists.stream()
+				.map(checklist -> ChecklistCreateDTO.builder()
+						.title(checklist.getTitle())
+						.workspaceId(checklist.getWorkspace().getId())
+						.createdById(checklist.getCreatedBy().getId())
+						.build())
+				.toList(); // Return the first checklist for simplicity, can be modified to return all
 	}
 }

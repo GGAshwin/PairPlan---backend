@@ -49,4 +49,9 @@ public class UserEntity {
 	@OneToMany(mappedBy = "createdBy")
 	private List<ChecklistItemEntity> createdItems;
 
+	@Override
+	public String toString() {
+		return "UserEntity{id=" + id + ", name=" + name + "}";
+	}
+
 }

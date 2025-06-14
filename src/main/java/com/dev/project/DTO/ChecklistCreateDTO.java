@@ -26,4 +26,12 @@ public class ChecklistCreateDTO {
 				.createdAt(new java.util.Date())
 				.build();
 	}
+
+	public ChecklistCreateDTO fromChecklistEntity(ChecklistEntity checklistEntity) {
+		return ChecklistCreateDTO.builder()
+				.title(checklistEntity.getTitle())
+				.workspaceId(checklistEntity.getWorkspace().getId())
+				.createdById(checklistEntity.getCreatedBy().getId())
+				.build();
+	}
 }

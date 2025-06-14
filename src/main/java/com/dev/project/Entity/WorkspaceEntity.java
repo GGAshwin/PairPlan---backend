@@ -18,6 +18,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -26,6 +27,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"users"})
 public class WorkspaceEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -45,4 +47,9 @@ public class WorkspaceEntity {
 
 	@OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL)
 	private List<ChecklistEntity> checklists = new ArrayList<>();
+
+	@Override
+	public String toString() {
+		return "WorkspaceEntity{id=" + id + ", name=" + name + "}";
+	}
 }
