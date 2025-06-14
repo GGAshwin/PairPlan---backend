@@ -83,23 +83,24 @@ public class ChecklistService {
 			throw new IllegalArgumentException("User is not authenticated or does not have an ID");
 		}
 
-		// Fetch all checklists created by the user
-		var checklists = checklistRepository.findAllByCreatedById(user.getId());
-
-		System.out.println(checklists);
-
-		if (checklists.isEmpty()) {
-			throw new IllegalArgumentException("No checklists found for user with ID " + user.getId());
+		if (user.getWorkspace() == null || user.getWorkspace().getId() == null) {
+			throw new IllegalArgumentException("User is not associated with a valid workspace");
 		}
 
-		//convert entity to dto
+		// Fetch all checklists from the user's workspace
+		var checklists = checklistRepository.findAllByWorkspaceId(user.getWorkspace().getId());
 
+		if (checklists.isEmpty()) {
+			throw new IllegalArgumentException("No checklists found for workspace with ID " + user.getWorkspace().getId());
+		}
+
+		// Convert entity to DTO
 		return checklists.stream()
 				.map(checklist -> ChecklistCreateDTO.builder()
 						.title(checklist.getTitle())
 						.workspaceId(checklist.getWorkspace().getId())
 						.createdById(checklist.getCreatedBy().getId())
 						.build())
-				.toList(); // Return the first checklist for simplicity, can be modified to return all
+				.toList();
 	}
 }

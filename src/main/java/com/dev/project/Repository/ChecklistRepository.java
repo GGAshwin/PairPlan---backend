@@ -20,4 +20,6 @@ public interface ChecklistRepository extends JpaRepository<ChecklistEntity, UUID
 
 	@Query("SELECT c FROM ChecklistEntity c WHERE c.createdBy.id = :createdById")
 	List<ChecklistEntity> findAllByCreatedById(@Param("createdById") UUID createdById);
+
+	List<ChecklistEntity> findAllByWorkspaceId(UUID workspaceId);
 }
