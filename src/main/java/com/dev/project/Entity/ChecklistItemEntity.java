@@ -3,6 +3,7 @@ package com.dev.project.Entity;
 import java.util.Date;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +19,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"createdBy"})
 public class ChecklistItemEntity {
 
 	@Id
@@ -26,6 +28,7 @@ public class ChecklistItemEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "checklist_id", nullable = false)
+	@JsonIgnore
 	private ChecklistEntity checklist;
 
 	private String content;
@@ -35,6 +38,7 @@ public class ChecklistItemEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "created_by", nullable = false)
+	@JsonIgnore
 	private UserEntity createdBy;
 
 	@Column(name = "created_at")

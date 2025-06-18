@@ -1,5 +1,7 @@
 package com.dev.project.Controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +30,16 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginDTO loginRequest) {
+	public ResponseEntity<Object> login(@RequestBody LoginDTO loginRequest) {
 		var user = userRepository.findByName(loginRequest.getName());
 		if (user.isPresent() && BCrypt.checkpw(loginRequest.getPassword(), user.get().getPassword())) {
 			// ✅ Generate JWT token using the username
 			String token = jwtUtil.generateToken(user.get().getName());
 
-			// ✅ Return token in response body
-			return ResponseEntity.ok(token);
+			// ✅ Return token in response body as JSON
+			return ResponseEntity.ok(Map.of("token", token));
 		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
 	}
 
 }

@@ -5,14 +5,17 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/users/join
+  url: http://localhost:8080/workspace/join
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhc2h3aW5fNzc3IiwiaWF0IjoxNzUwMjYyODcwLCJleHAiOjE3NTAzNDkyNzB9.od7gdmoKJWI3TsIwxCACw-TLchChTQPYlMUjCJuXfTU
 }
 
 body:json {
   {
-    "user_id": "ed43baa1-6fc0-4279-aaf3-c5261d50a689",
-    "join_code": "XPYN"
+    "join_code": "QDRH"
   }
 }

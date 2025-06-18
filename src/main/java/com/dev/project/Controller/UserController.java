@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dev.project.DTO.CreateUserResponse;
 import com.dev.project.DTO.JoinDTO;
 import com.dev.project.Entity.UserEntity;
 import com.dev.project.Entity.WorkspaceEntity;
@@ -40,59 +41,16 @@ public class UserController {
 	}
 
 	// Create a new user
-	@PostMapping("/")
-	public UUID createUser(@RequestBody UserEntity userRequest) {
-		// derive workspace details from the user details, save the workspace details then save the user details as
-		// it requires the workspace details to be saved first
+	@PostMapping
+	public ResponseEntity<CreateUserResponse> createUser(@RequestBody UserEntity userRequest) {
+		// Derive workspace details from the user details, save the workspace details then save the user details
 		String encryptedPassword = BCrypt.hashpw(userRequest.getPassword(), BCrypt.gensalt());
 		userRequest.setPassword(encryptedPassword);
 
 		userRepository.save(userRequest);
 
-		System.out.println(userRepository.findAll());
-		return userRequest.getId();
-
-	}
-
-	@PostMapping("/join")
-	public ResponseEntity<String> joinWorkspace(@RequestBody JoinDTO joinRequest){
-		//null check
-		if(joinRequest.getJoinCode() == null || joinRequest.getUserId() == null || joinRequest.getJoinCode().isEmpty()){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad input, try again!!");
-		}
-
-		var validUserOptional = userRepository.findById(joinRequest.getUserId());
-			var foundWorkspace = workspaceRepository.findByJoinCode(joinRequest.getJoinCode());
-		if(validUserOptional.isPresent()){
-			System.out.println(foundWorkspace);
-			var workspaceToJoin = foundWorkspace.get();
-			var validUser = validUserOptional.get();
-
-			if(validUser.getWorkspace() != null){
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already has a workspace!");
-			}
-
-			//add users to the workspace
-			workspaceToJoin.getUsers().add(validUser);
-
-			validUser.setWorkspace(workspaceToJoin);
-
-			System.out.println(validUser);
-			workspaceRepository.save(workspaceToJoin);
-			userRepository.save(validUser);
-
-		//after joining the workspace, delete the existing joinCode of the joiner or delete the record itself
-		workspaceToJoin.setJoinCode(null);
-		return ResponseEntity.status(HttpStatus.OK).body("Joined Workspace Successfully");
-		}
-		else if (foundWorkspace.isEmpty()){
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Join Code not found!");
-
-		}
-		else{
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
-		}
-
+		CreateUserResponse response = new CreateUserResponse(userRequest.getId(), "User created successfully");
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	//only for testing, remove after using

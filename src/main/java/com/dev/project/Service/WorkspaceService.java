@@ -8,8 +8,10 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dev.project.DTO.JoinDTO;
 import com.dev.project.Entity.UserEntity;
 import com.dev.project.Entity.WorkspaceEntity;
+import com.dev.project.Repository.UserRepository;
 import com.dev.project.Repository.WorkspaceRepository;
 
 
@@ -38,4 +40,37 @@ public class WorkspaceService {
 			}
 			return code.toString();
 		}
+
+	public String joinWorkspace(JoinDTO joinRequest, UserRepository userRepository,
+							String userName,	WorkspaceRepository workspaceRepository) {
+		var validUserOptional = userRepository.findByName(userName);
+		var foundWorkspace = workspaceRepository.findByJoinCode(joinRequest.getJoinCode());
+
+		if (validUserOptional.isPresent()) {
+			if (foundWorkspace.isEmpty()) {
+				return "Join Code not found!";
+			}
+
+			var workspaceToJoin = foundWorkspace.get();
+			var validUser = validUserOptional.get();
+
+			if (validUser.getWorkspace() != null) {
+				return "User already has a workspace!";
+			}
+
+			// Add user to the workspace
+			workspaceToJoin.getUsers().add(validUser);
+			validUser.setWorkspace(workspaceToJoin);
+
+			// Save changes
+			workspaceRepository.save(workspaceToJoin);
+			userRepository.save(validUser);
+
+			// Remove the join code after successful join
+			workspaceToJoin.setJoinCode(null);
+			return "Joined Workspace Successfully";
+		} else {
+			return "User not found!";
+		}
+	}
 }
