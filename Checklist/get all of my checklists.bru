@@ -1,0 +1,15 @@
+meta {
+  name: get all of my checklists
+  type: http
+  seq: 9
+}
+
+get {
+  url: http://localhost:8080/checklists
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5qdSIsImlhdCI6MTc1MDE3NDQzMywiZXhwIjoxNzUwMjYwODMzfQ.bxG07Q8XdQ6gciGY9H3zAzr1c9nd_jobaA0iCqscU2s
+}

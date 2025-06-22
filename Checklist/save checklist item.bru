@@ -1,0 +1,23 @@
+meta {
+  name: save checklist item
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:8080/api/checklist-items
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5qdSIsImlhdCI6MTc1MDE3NzUxMSwiZXhwIjoxNzUwMjYzOTExfQ.IUxBqNlin9JFsSgFOk0yLOAAZUuOosT2yG7Ei4XbL34.bxG07Q8XdQ6gciGY9H3zAzr1c9nd_jobaA0iCqscU2s
+}
+
+body:json {
+  {
+    "checklist_id":"a360517f-dd0d-4f4d-a33e-9f73326edcaf",
+    "content":"first item"
+    
+  }
+}

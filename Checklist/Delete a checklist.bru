@@ -1,0 +1,19 @@
+meta {
+  name: Delete a checklist
+  type: http
+  seq: 7
+}
+
+delete {
+  url: http://localhost:8080/checklists
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title":"dates3",
+    "workspace_id":"d41abee7-41cb-4ae5-a340-fe00f6e60f91",
+    "created_by_id":"d1845806-3bcd-439c-a759-507e7ab08aa7"
+  }
+}
