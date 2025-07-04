@@ -5,13 +5,11 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/workspace/
+  url: http://localhost:8080/api/workspace
   body: json
-  auth: none
+  auth: bearer
 }
 
-body:json {
-  {
-    "user_id":"2d407c8d-b544-4eb1-83ca-b565539d1d75"
-  }
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhc2h3aW5fMTIzNCIsImlhdCI6MTc1MDI2MzM2MywiZXhwIjoxNzUwMzQ5NzYzfQ.QY-7tExV3TecRRm633H1iG7fwf7aRusLCVCgzd9FFtc
 }

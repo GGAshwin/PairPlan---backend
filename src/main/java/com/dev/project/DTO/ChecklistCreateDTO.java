@@ -16,7 +16,6 @@ import lombok.Data;
 public class ChecklistCreateDTO {
 	private String title;
 	private UUID workspaceId;
-	private UUID createdById;
 
 	public ChecklistEntity toChecklistEntity(WorkspaceEntity workspaceEntity, UserEntity userEntity) {
 		return ChecklistEntity.builder()
@@ -31,7 +30,6 @@ public class ChecklistCreateDTO {
 		return ChecklistCreateDTO.builder()
 				.title(checklistEntity.getTitle())
 				.workspaceId(checklistEntity.getWorkspace().getId())
-				.createdById(checklistEntity.getCreatedBy().getId())
 				.build();
 	}
 }

@@ -5,7 +5,19 @@ meta {
 }
 
 put {
-  url: http://localhost:8080/
-  body: none
-  auth: none
+  url: http://localhost:8080/api/checklist-items/7a5c1b76-d7c5-44bf-8ff0-d43b0951b15e
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhc2h3aW5fNzc3IiwiaWF0IjoxNzUwMTc4NDI5LCJleHAiOjE3NTAyNjQ4Mjl9.CbJp3uZBD_u3g2fOQRzMC1BFJQBLh_buZA9xxp9AT2Y
+}
+
+body:json {
+  {
+    "checklist_id":"a360517f-dd0d-4f4d-a33e-9f73326edcaf",
+    "content":"changed value",
+    "is_checked":"true"
+  }
 }

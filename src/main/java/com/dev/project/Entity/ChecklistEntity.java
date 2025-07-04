@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,10 +37,12 @@ public class ChecklistEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "workspace_id", nullable = false)
+	@JsonIgnore
 	private WorkspaceEntity workspace;
 
 	@ManyToOne
 	@JoinColumn(name = "created_by", nullable = false)
+	@JsonIgnore
 	private UserEntity createdBy;
 
 	@Column(name = "created_at")
@@ -48,5 +51,16 @@ public class ChecklistEntity {
 	@OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL)
 	@Column(nullable = true)
 	private List<ChecklistItemEntity> items;
+
+	@Override
+	public String toString() {
+		return "ChecklistEntity{" +
+				"id=" + id +
+				", title='" + title + '\'' +
+				", workspaceId=" + (workspace != null ? workspace.getId() : null) +
+				", createdById=" + (createdBy != null ? createdBy.getId() : null) +
+				", createdAt=" + createdAt +
+				'}';
+	}
 
 }

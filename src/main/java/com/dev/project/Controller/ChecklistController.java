@@ -1,6 +1,7 @@
 package com.dev.project.Controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,9 @@ public class ChecklistController {
 			throw new RuntimeException("Missing or invalid Authorization header");
 		}
 
+
 		String token = authHeader.substring(7); // Strip "Bearer "
+		System.out.println(token);
 
 		String username = jwtUtil.extractName(token);
 		System.out.println(username);
@@ -59,6 +62,7 @@ public class ChecklistController {
 		// Fetch user by name
 		UserEntity user = userRepository.findByName(username)
 				.orElseThrow(() -> new RuntimeException("User not found"));
+
 
 		System.out.println(user);
 
@@ -77,15 +81,46 @@ public class ChecklistController {
 	}
 
 	@PostMapping("")
-	public String createChecklist(@RequestBody ChecklistCreateDTO checkListRequest) {
+	public ChecklistEntity createChecklist(@RequestHeader("Authorization") String authHeader,
+							 @RequestBody ChecklistCreateDTO checkListRequest) {
+		// Validate Authorization header
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new RuntimeException("Missing or invalid Authorization header");
+		}
+
+		// Extract and validate JWT token
+		String token = authHeader.substring(7); // Strip "Bearer "
+		String username = jwtUtil.extractName(token);
+		if (!jwtUtil.isTokenValid(token, username)) {
+			throw new RuntimeException("Invalid or expired token");
+		}
+
+		UserEntity user = userRepository.findByName(username)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
 		// Logic to create a checklist
-		checklistService.createChecklist(checkListRequest, workspaceRepository, userRepository, checklistRepository);
-		return "Checklist created successfully";
+		return checklistService.createChecklist(checkListRequest, user,  workspaceRepository,
+				checklistRepository);
 	}
 
 	@DeleteMapping("")
-	public String deleteChecklist(@RequestBody ChecklistCreateDTO checkListRequest) {
-		 checklistService.deleteChecklist(checkListRequest, checklistRepository);
+	public String deleteChecklist(@RequestHeader("Authorization") String authHeader, @RequestBody ChecklistCreateDTO checkListRequest) {
+
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new RuntimeException("Missing or invalid Authorization header");
+		}
+
+		// Extract and validate JWT token
+		String token = authHeader.substring(7); // Strip "Bearer "
+		String username = jwtUtil.extractName(token);
+		if (!jwtUtil.isTokenValid(token, username)) {
+			throw new RuntimeException("Invalid or expired token");
+		}
+
+		UserEntity user = userRepository.findByName(username)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+		// Logic to delete a checklist
+		 checklistService.deleteChecklist(checkListRequest, user, checklistRepository);
 		return "Checklist deleted successfully";
 	}
 }

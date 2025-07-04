@@ -13,32 +13,21 @@ import com.dev.project.Repository.WorkspaceRepository;
 
 @Service
 public class ChecklistService {
-	public void createChecklist(ChecklistCreateDTO checkListRequest, WorkspaceRepository workspaceRepository,
-								UserRepository userRepository, ChecklistRepository checklistRepository) {
-		// chcek if name of checklist already exists in the workspace
+	public ChecklistEntity createChecklist(ChecklistCreateDTO checkListRequest,
+								UserEntity user, WorkspaceRepository workspaceRepository, ChecklistRepository checklistRepository) {
+		// check if name of checklist already exists in the workspace
 		// if this throws an exception it means that the checklist already exists
 		var existingChecklist = checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(), checkListRequest.getWorkspaceId());
 		if (existingChecklist.isPresent()) {
 			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' already exists in the workspace with ID " + checkListRequest.getWorkspaceId());
 		}
 
-//		if (existingChecklist) {
-//			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' already exists in the workspace");
-//		}
 		// Validate the request
 		if (checkListRequest.getTitle() == null || checkListRequest.getTitle().isEmpty()) {
 			throw new IllegalArgumentException("Checklist title cannot be empty");
 		}
 		if (checkListRequest.getWorkspaceId() == null) {
 			throw new IllegalArgumentException("Workspace ID cannot be null");
-		}
-		if (checkListRequest.getCreatedById() == null) {
-			throw new IllegalArgumentException("Created by ID cannot be null");
-		}
-		// Check if user exists
-		var userExists = userRepository.findById(checkListRequest.getCreatedById());
-		if (userExists.isEmpty()) {
-			throw new IllegalArgumentException("User with ID " + checkListRequest.getCreatedById() + " does not exist");
 		}
 		// Check if workspace exists
 		var workspace = workspaceRepository.findById(checkListRequest.getWorkspaceId());
@@ -47,25 +36,31 @@ public class ChecklistService {
 		}
 		// check if workspace is associated with user
 		var usersArray = workspace.get().getUsers();
-		var isUserAssocaited = usersArray.stream().anyMatch(user -> user.getId().equals(checkListRequest.getCreatedById()));
+		var isUserAssocaited =
+				usersArray.stream().anyMatch(userItem -> userItem.getId().equals(user.getId()));
 		System.out.println(isUserAssocaited);
 
 		if (!isUserAssocaited) {
-			throw new IllegalArgumentException("User with ID " + checkListRequest.getCreatedById() + " is not associated with the workspace");
+			throw new IllegalArgumentException("User with ID " + user.getId() + " is not associated with the" +
+					" workspace");
 		}
 		// Create the checklist
-		checklistRepository.save(checkListRequest.toChecklistEntity(workspace.get(), userExists.get()));
+		ChecklistEntity checklistEntity = checklistRepository.save(checkListRequest.toChecklistEntity(workspace.get(),
+				user));
+
+		return checklistEntity;
 	}
 
-	public void deleteChecklist(ChecklistCreateDTO checkListRequest, ChecklistRepository checklistRepository) {
+	public void deleteChecklist(ChecklistCreateDTO checkListRequest,
+								UserEntity user, ChecklistRepository checklistRepository) {
 		// Validate the request
-		if (checkListRequest.getTitle() == null || checkListRequest.getTitle().isEmpty()) {
-			throw new IllegalArgumentException("Checklist title cannot be empty");
-		}
 		if (checkListRequest.getWorkspaceId() == null) {
 			throw new IllegalArgumentException("Workspace ID cannot be null");
 		}
-		if (checkListRequest.getCreatedById() == null) {
+		if (checkListRequest.getTitle() == null || checkListRequest.getTitle().isEmpty()) {
+			throw new IllegalArgumentException("Checklist title cannot be empty");
+		}
+		if (user.getId() == null) {
 			throw new IllegalArgumentException("Created by ID cannot be null");
 		}
 
@@ -99,7 +94,6 @@ public class ChecklistService {
 				.map(checklist -> ChecklistCreateDTO.builder()
 						.title(checklist.getTitle())
 						.workspaceId(checklist.getWorkspace().getId())
-						.createdById(checklist.getCreatedBy().getId())
 						.build())
 				.toList();
 	}
