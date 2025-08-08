@@ -7,13 +7,17 @@ meta {
 post {
   url: http://localhost:8080/checklists
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhc2h3aW5fMTIzNCIsImlhdCI6MTc1MTYyOTU0MywiZXhwIjoxNzUxNzE1OTQzfQ.piPJcfH_WSjtcNBHIuCi31Hlk6bzco4h6q_T4GCLNW4
 }
 
 body:json {
   {
-    "title":"dates10",
-    "workspace_id":"e0c4ce9a-46d7-4e54-a40a-5c7f38531c9c"
+    "title":"grocery4",
+    "workspace_id":"64cd90f3-fe01-4e8a-9b32-4959b7129c47"
     // "created_by_id":"d08e203a-64e6-43ff-a5ba-bfae149c2bde"
   }
 }

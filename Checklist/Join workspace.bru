@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/workspace/join
+  url: http://localhost:8080/api/workspace/join
   body: json
   auth: bearer
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhc2h3aW5fNzc3IiwiaWF0IjoxNzUwMjYyODcwLCJleHAiOjE3NTAzNDkyNzB9.od7gdmoKJWI3TsIwxCACw-TLchChTQPYlMUjCJuXfTU
+  token: {{token}}
 }
 
 body:json {

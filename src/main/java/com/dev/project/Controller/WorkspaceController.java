@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dev.project.Component.JwtUtil;
 import com.dev.project.DTO.JoinDTO;
+import com.dev.project.DTO.MessageDTO;
 import com.dev.project.DTO.UserResponseDTO;
 import com.dev.project.DTO.WorkspaceCreateDTO;
 import com.dev.project.DTO.WorkspaceResponseDTO;
@@ -30,19 +31,19 @@ import com.dev.project.Service.WorkspaceService;
 @RestController
 @RequestMapping("/api/workspace")
 public class WorkspaceController {
-	 private WorkspaceRepository workspaceRepository;
-	 private WorkspaceService workspaceService;
-	 private UserRepository userRepository;
-	 private JwtUtil jwtUtil;
+	private WorkspaceRepository workspaceRepository;
+	private WorkspaceService workspaceService;
+	private UserRepository userRepository;
+	private JwtUtil jwtUtil;
 
-	 @Autowired
-	public WorkspaceController( WorkspaceRepository workspaceRepository,
-							   WorkspaceService workspaceService, UserRepository userRepository, JwtUtil jwtUtil){
-		 this.workspaceRepository = workspaceRepository;
-		 this.workspaceService = workspaceService;
-		 this.userRepository = userRepository;
-		 this.jwtUtil = jwtUtil;
-	 }
+	@Autowired
+	public WorkspaceController(WorkspaceRepository workspaceRepository,
+			WorkspaceService workspaceService, UserRepository userRepository, JwtUtil jwtUtil) {
+		this.workspaceRepository = workspaceRepository;
+		this.workspaceService = workspaceService;
+		this.userRepository = userRepository;
+		this.jwtUtil = jwtUtil;
+	}
 
 	@PostMapping
 	public ResponseEntity<Object> createWorkspace(@RequestHeader("Authorization") String authHeader) {
@@ -92,12 +93,11 @@ public class WorkspaceController {
 	}
 
 	@PostMapping("/join")
-	public ResponseEntity<String> joinWorkspace(@RequestBody JoinDTO joinRequest,
-												@RequestHeader("Authorization") String authHeader
-												) {
+	public ResponseEntity<MessageDTO> joinWorkspace(@RequestBody JoinDTO joinRequest,
+			@RequestHeader("Authorization") String authHeader) {
 		// Null check for input validation
 		if (joinRequest.getJoinCode() == null || joinRequest.getJoinCode().isEmpty()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad input, try again!!");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MessageDTO.error("Bad input, try again!!"));
 		}
 
 		String token = authHeader.replace("Bearer ", "");
@@ -106,24 +106,29 @@ public class WorkspaceController {
 		try {
 			userName = jwtUtil.extractName(token); // Assume jwtService is a service to handle JWT operations
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token!");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(MessageDTO.error("Invalid or expired token!"));
 		}
 
 		// Delegate the logic to the service
 		String responseMessage = workspaceService.joinWorkspace(joinRequest, userRepository, userName,
 				workspaceRepository);
 		return switch (responseMessage) {
-			case "Joined Workspace Successfully" -> ResponseEntity.status(HttpStatus.OK).body(responseMessage);
-			case "Join Code not found!" -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMessage);
-			case "User not found!" -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMessage);
-			case "User already has a workspace!" -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMessage);
-			default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred!");
+			case "Joined Workspace Successfully" -> ResponseEntity.status(HttpStatus.OK)
+					.body(MessageDTO.success("Joined Workspace Successfully"));
+			case "Join Code not found!" -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(MessageDTO.error("Join Code not found!"));
+			case "User not found!" -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(MessageDTO.error("User not found!"));
+			case "User already has a workspace!" -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(MessageDTO.error("User already has a workspace!"));
+			default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(MessageDTO.error("An unexpected error occurred!"));
 		};
 	}
 
 	@GetMapping("/{workspaceId}")
 	public ResponseEntity<Object> getWorkspaceById(@PathVariable UUID workspaceId,
-												  @RequestHeader("Authorization") String authHeader) {
+			@RequestHeader("Authorization") String authHeader) {
 		String token = authHeader.replace("Bearer ", "");
 		String userName;
 

@@ -18,11 +18,14 @@ import com.dev.project.Repository.UserRepository;
 public class ChecklistItemService {
 	private final ChecklistItemRepository checklistItemRepository;
 	private final UserRepository userRepository;
+	private final ChecklistRepository checklistRepository;
 
 	@Autowired
-	public ChecklistItemService(ChecklistItemRepository checklistItemRepository, UserRepository userRepository) {
+	public ChecklistItemService(ChecklistItemRepository checklistItemRepository, UserRepository userRepository,
+			ChecklistRepository checklistRepository) {
 		this.checklistItemRepository = checklistItemRepository;
 		this.userRepository = userRepository;
+		this.checklistRepository = checklistRepository;
 	}
 
 	// Method to get all checklist items by checklist ID
@@ -32,7 +35,7 @@ public class ChecklistItemService {
 
 	// Method to create a new checklist item
 	public ChecklistItemEntity createChecklistItem(String jwtToken, ChecklistItemDTO checklistItemDTO, JwtUtil jwtUtil,
-												   UserRepository userRepository, ChecklistRepository checklistRepository) {
+			UserRepository userRepository, ChecklistRepository checklistRepository) {
 		// Extract username from JWT token
 		String username = jwtUtil.extractName(jwtToken);
 
@@ -44,9 +47,10 @@ public class ChecklistItemService {
 		var checklist = checklistRepository.findById(checklistItemDTO.getChecklistId())
 				.orElseThrow(() -> new IllegalArgumentException("Checklist does not exist"));
 
-//		if (!checklist.getCreatedBy().getId().equals(user.getId())) {
-//			throw new IllegalArgumentException("User is not authorized to add items to this checklist");
-//		}
+		// if (!checklist.getCreatedBy().getId().equals(user.getId())) {
+		// throw new IllegalArgumentException("User is not authorized to add items to
+		// this checklist");
+		// }
 
 		var workspace = checklist.getWorkspace();
 		if (workspace == null || !workspace.getUsers().contains(user)) {
@@ -67,19 +71,24 @@ public class ChecklistItemService {
 	}
 
 	// Method to update an existing checklist item
-	public ChecklistItemEntity updateChecklistItem(UUID id, ChecklistItemDTO updatedItem, String username) {
-		//validate the user
+	public ChecklistItemEntity updateChecklistItem(UUID checklistId, UUID checklistItemId, ChecklistItemDTO updatedItem,
+			String username) {
+		// validate the user
 		var user = userRepository.findByName(username)
 				.orElseThrow(() -> new IllegalArgumentException("User does not exist"));
-		//validate the user owns the checklist item via worksapce
-		var checklistItem = checklistItemRepository.findById(id)
+
+		var checklistFound = checklistRepository.findById(checklistId)
+				.orElseThrow(() -> new IllegalArgumentException("Checklist does not exist"));
+
+		// validate the user owns the checklist item via worksapce
+		var checklistItem = checklistItemRepository.findById(checklistItemId)
 				.orElseThrow(() -> new IllegalArgumentException("Checklist item does not exist"));
 		var checklist = checklistItem.getChecklist();
 		var workspace = checklist.getWorkspace();
 		if (workspace == null || !workspace.getUsers().contains(user)) {
 			throw new IllegalArgumentException("User is not authorized to update this checklist item");
 		}
-		ChecklistItemEntity existingItem = checklistItemRepository.findById(id)
+		ChecklistItemEntity existingItem = checklistItemRepository.findById(checklistItemId)
 				.orElseThrow(() -> new IllegalArgumentException("Checklist item not found"));
 		existingItem.setContent(updatedItem.getContent());
 		existingItem.setChecked(updatedItem.isChecked());
@@ -87,7 +96,15 @@ public class ChecklistItemService {
 	}
 
 	// Method to delete a checklist item
-	public void deleteChecklistItem(UUID id) {
-		checklistItemRepository.deleteById(id);
+	public void deleteChecklistItem(UUID checkListItemId, UUID checklistId) {
+		// check if checklist exists
+		if (!checklistRepository.existsById(checklistId)) {
+			throw new IllegalArgumentException("Checklist does not exist");
+		}
+		// check if checklist item exists
+		if (!checklistItemRepository.existsById(checkListItemId)) {
+			throw new IllegalArgumentException("Checklist item does not exist");
+		}
+		checklistItemRepository.deleteById(checkListItemId);
 	}
 }

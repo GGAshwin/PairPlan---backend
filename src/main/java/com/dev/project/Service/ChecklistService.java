@@ -14,12 +14,14 @@ import com.dev.project.Repository.WorkspaceRepository;
 @Service
 public class ChecklistService {
 	public ChecklistEntity createChecklist(ChecklistCreateDTO checkListRequest,
-								UserEntity user, WorkspaceRepository workspaceRepository, ChecklistRepository checklistRepository) {
+			UserEntity user, WorkspaceRepository workspaceRepository, ChecklistRepository checklistRepository) {
 		// check if name of checklist already exists in the workspace
 		// if this throws an exception it means that the checklist already exists
-		var existingChecklist = checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(), checkListRequest.getWorkspaceId());
+		var existingChecklist = checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(),
+				checkListRequest.getWorkspaceId());
 		if (existingChecklist.isPresent()) {
-			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' already exists in the workspace with ID " + checkListRequest.getWorkspaceId());
+			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle()
+					+ "' already exists in the workspace with ID " + checkListRequest.getWorkspaceId());
 		}
 
 		// Validate the request
@@ -31,13 +33,13 @@ public class ChecklistService {
 		}
 		// Check if workspace exists
 		var workspace = workspaceRepository.findById(checkListRequest.getWorkspaceId());
-		if(workspace.isEmpty()){
-			throw new IllegalArgumentException("Workspace with ID " + checkListRequest.getWorkspaceId() + " does not exist");
+		if (workspace.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Workspace with ID " + checkListRequest.getWorkspaceId() + " does not exist");
 		}
 		// check if workspace is associated with user
 		var usersArray = workspace.get().getUsers();
-		var isUserAssocaited =
-				usersArray.stream().anyMatch(userItem -> userItem.getId().equals(user.getId()));
+		var isUserAssocaited = usersArray.stream().anyMatch(userItem -> userItem.getId().equals(user.getId()));
 		System.out.println(isUserAssocaited);
 
 		if (!isUserAssocaited) {
@@ -52,7 +54,7 @@ public class ChecklistService {
 	}
 
 	public void deleteChecklist(ChecklistCreateDTO checkListRequest,
-								UserEntity user, ChecklistRepository checklistRepository) {
+			UserEntity user, ChecklistRepository checklistRepository) {
 		// Validate the request
 		if (checkListRequest.getWorkspaceId() == null) {
 			throw new IllegalArgumentException("Workspace ID cannot be null");
@@ -64,10 +66,12 @@ public class ChecklistService {
 			throw new IllegalArgumentException("Created by ID cannot be null");
 		}
 
-		var checklistOptional = checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(), checkListRequest.getWorkspaceId());
+		var checklistOptional = checklistRepository.findByTitleAndWorkspaceId(checkListRequest.getTitle(),
+				checkListRequest.getWorkspaceId());
 
 		if (checklistOptional.isEmpty()) {
-			throw new IllegalArgumentException("Checklist with title '" + checkListRequest.getTitle() + "' does not exist in the workspace");
+			throw new IllegalArgumentException(
+					"Checklist with title '" + checkListRequest.getTitle() + "' does not exist in the workspace");
 		}
 
 		checklistRepository.delete(checklistOptional.get());
@@ -86,14 +90,15 @@ public class ChecklistService {
 		var checklists = checklistRepository.findAllByWorkspaceId(user.getWorkspace().getId());
 
 		if (checklists.isEmpty()) {
-			throw new IllegalArgumentException("No checklists found for workspace with ID " + user.getWorkspace().getId());
+			throw new IllegalArgumentException(
+					"No checklists found for workspace with ID " + user.getWorkspace().getId());
 		}
 
 		// Convert entity to DTO
 		return checklists.stream()
 				.map(checklist -> ChecklistCreateDTO.builder()
 						.title(checklist.getTitle())
-						.workspaceId(checklist.getWorkspace().getId())
+						.checklistId(checklist.getId())
 						.build())
 				.toList();
 	}
