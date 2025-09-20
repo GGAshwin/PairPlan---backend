@@ -22,9 +22,13 @@ import com.dev.project.Repository.WorkspaceRepository;
 import com.dev.project.Service.WorkspaceService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "User", description = "User management operations")
 public class UserController {
 	private UserRepository userRepository;
 	private WorkspaceRepository workspaceRepository;
@@ -42,8 +46,13 @@ public class UserController {
 
 	// Create a new user
 	@PostMapping
+	@Operation(summary = "Create a new user", description = "Register a new user account with encrypted password", responses = {
+			@ApiResponse(responseCode = "201", description = "User created successfully"),
+			@ApiResponse(responseCode = "400", description = "Invalid user data")
+	})
 	public ResponseEntity<CreateUserResponse> createUser(@RequestBody UserEntity userRequest) {
-		// Derive workspace details from the user details, save the workspace details then save the user details
+		// Derive workspace details from the user details, save the workspace details
+		// then save the user details
 		String encryptedPassword = BCrypt.hashpw(userRequest.getPassword(), BCrypt.gensalt());
 		userRequest.setPassword(encryptedPassword);
 
@@ -53,9 +62,9 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	//only for testing, remove after using
+	// only for testing, remove after using
 	@DeleteMapping("/everything")
-	public String deleteEverything(){
+	public String deleteEverything() {
 		workspaceRepository.deleteAll();
 		userRepository.deleteAll();
 

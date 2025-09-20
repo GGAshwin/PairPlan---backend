@@ -17,8 +17,13 @@ import com.dev.project.Component.JwtUtil;
 import com.dev.project.DTO.LoginDTO;
 import com.dev.project.Repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "User authentication operations")
 public class AuthController {
 	private final UserRepository userRepository;
 	private final JwtUtil jwtUtil;
@@ -30,6 +35,10 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
+	@Operation(summary = "User login", description = "Authenticate user with username and password, returns JWT token on success", responses = {
+			@ApiResponse(responseCode = "200", description = "Login successful, JWT token returned"),
+			@ApiResponse(responseCode = "401", description = "Invalid credentials")
+	})
 	public ResponseEntity<Object> login(@RequestBody LoginDTO loginRequest) {
 		var user = userRepository.findByName(loginRequest.getName());
 		if (user.isPresent() && BCrypt.checkpw(loginRequest.getPassword(), user.get().getPassword())) {

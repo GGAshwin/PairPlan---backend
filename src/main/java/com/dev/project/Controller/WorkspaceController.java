@@ -28,8 +28,15 @@ import com.dev.project.Repository.UserRepository;
 import com.dev.project.Repository.WorkspaceRepository;
 import com.dev.project.Service.WorkspaceService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/workspace")
+@Tag(name = "Workspace", description = "Workspace management operations")
+@SecurityRequirement(name = "Bearer Authentication")
 public class WorkspaceController {
 	private WorkspaceRepository workspaceRepository;
 	private WorkspaceService workspaceService;

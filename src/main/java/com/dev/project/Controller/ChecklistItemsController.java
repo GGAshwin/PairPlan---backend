@@ -22,10 +22,14 @@ import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
 import com.dev.project.Service.ChecklistItemService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/checklist-items")
+@Tag(name = "Checklist Items", description = "Checklist item management operations")
+@SecurityRequirement(name = "Bearer Authentication")
 public class ChecklistItemsController {
 
 	private final ChecklistItemService checklistItemService;
