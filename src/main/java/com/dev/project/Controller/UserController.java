@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 @Tag(name = "User", description = "User management operations")
 public class UserController {
 	private UserRepository userRepository;
@@ -62,12 +62,12 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	// only for testing, remove after using
-	@DeleteMapping("/everything")
-	public String deleteEverything() {
-		workspaceRepository.deleteAll();
-		userRepository.deleteAll();
+	// // only for testing, remove after using
+	// @DeleteMapping("/everything")
+	// public String deleteEverything() {
+	// 	workspaceRepository.deleteAll();
+	// 	userRepository.deleteAll();
 
-		return "Deleted!!!";
-	}
+	// 	return "Deleted!!!";
+	// }
 }
