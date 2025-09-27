@@ -1,22 +1,15 @@
 package com.dev.project.Controller;
 
-import java.net.http.HttpResponse;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dev.project.DTO.CreateUserResponse;
-import com.dev.project.DTO.JoinDTO;
 import com.dev.project.Entity.UserEntity;
-import com.dev.project.Entity.WorkspaceEntity;
-import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
 import com.dev.project.Repository.WorkspaceRepository;
 import com.dev.project.Service.WorkspaceService;
@@ -27,7 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @Tag(name = "User", description = "User management operations")
 public class UserController {
 	private UserRepository userRepository;
