@@ -20,6 +20,7 @@ import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
 import com.dev.project.Repository.WorkspaceRepository;
 import com.dev.project.Service.ChecklistService;
+import com.dev.project.Service.UserValidityService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,14 +38,16 @@ public class ChecklistController {
 	private final WorkspaceRepository workspaceRepository;
 	private final UserRepository userRepository;
 	private final ChecklistRepository checklistRepository;
+	private final UserValidityService userValidityService;
 
 	@Autowired
 	public ChecklistController(ChecklistService checklistService, WorkspaceRepository workspaceRepository,
-			UserRepository userRepository, ChecklistRepository checklistRepository) {
+			UserRepository userRepository, ChecklistRepository checklistRepository, UserValidityService userValidityService) {
 		this.checklistService = checklistService;
 		this.workspaceRepository = workspaceRepository;
 		this.userRepository = userRepository;
 		this.checklistRepository = checklistRepository;
+		this.userValidityService = userValidityService;
 	}
 
 	@GetMapping("")
@@ -54,9 +57,7 @@ public class ChecklistController {
 			@ApiResponse(responseCode = "404", description = "User not found")
 	})
 	public List<ChecklistCreateDTO> getMyChecklists(HttpServletRequest request) {
-		String username = (String) request.getAttribute("username");
-		UserEntity user = userRepository.findByName(username)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+		UserEntity user = userValidityService.isUserExists(request);
 		return checklistService.getMyChecklists(user, checklistRepository);
 	}
 
@@ -69,9 +70,7 @@ public class ChecklistController {
 	public ChecklistEntity createChecklist(HttpServletRequest request,
 			@RequestBody ChecklistCreateRequestDTO checkListRequest) {
 		// Validate Authorization header
-		String username = (String) request.getAttribute("username");
-		UserEntity user = userRepository.findByName(username)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+		UserEntity user = userValidityService.isUserExists(request);
 
 		// Logic to create a checklist
 		return checklistService.createChecklist(checkListRequest, user, workspaceRepository,
@@ -87,9 +86,7 @@ public class ChecklistController {
 	public String deleteChecklist(HttpServletRequest request,
 			@RequestBody ChecklistCreateDTO checkListRequest) {
 			// Here i will have to send the checklistId as well as i am deleting the checklist
-		String username = (String) request.getAttribute("username");
-		UserEntity user = userRepository.findByName(username)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+		UserEntity user = userValidityService.isUserExists(request);
 
 		// Logic to delete a checklist
 		checklistService.deleteChecklist(checkListRequest, user, checklistRepository);
