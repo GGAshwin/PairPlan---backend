@@ -1,11 +1,8 @@
 package com.dev.project.Controller;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dev.project.Component.JwtUtil;
 import com.dev.project.DTO.ChecklistCreateDTO;
-import com.dev.project.DTO.MessageDTO;
 import com.dev.project.Entity.ChecklistEntity;
 import com.dev.project.Entity.UserEntity;
 import com.dev.project.Repository.ChecklistRepository;
@@ -25,11 +21,9 @@ import com.dev.project.Repository.WorkspaceRepository;
 import com.dev.project.Service.ChecklistService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/checklists")
