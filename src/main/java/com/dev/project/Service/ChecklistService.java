@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.dev.project.DTO.ChecklistCreateDTO;
+import com.dev.project.DTO.ChecklistCreateRequestDTO;
 import com.dev.project.Entity.ChecklistEntity;
 import com.dev.project.Entity.UserEntity;
 import com.dev.project.Repository.ChecklistRepository;
@@ -13,7 +14,7 @@ import com.dev.project.Repository.WorkspaceRepository;
 
 @Service
 public class ChecklistService {
-	public ChecklistEntity createChecklist(ChecklistCreateDTO checkListRequest,
+	public ChecklistEntity createChecklist(ChecklistCreateRequestDTO checkListRequest,
 			UserEntity user, WorkspaceRepository workspaceRepository, ChecklistRepository checklistRepository) {
 		// check if name of checklist already exists in the workspace
 		// if this throws an exception it means that the checklist already exists

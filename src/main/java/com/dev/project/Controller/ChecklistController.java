@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dev.project.Component.JwtUtil;
 import com.dev.project.DTO.ChecklistCreateDTO;
+import com.dev.project.DTO.ChecklistCreateRequestDTO;
 import com.dev.project.Entity.ChecklistEntity;
 import com.dev.project.Entity.UserEntity;
 import com.dev.project.Repository.ChecklistRepository;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/checklists")
@@ -53,28 +55,11 @@ public class ChecklistController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized - Invalid JWT token"),
 			@ApiResponse(responseCode = "404", description = "User not found")
 	})
-	public List<ChecklistCreateDTO> getMyChecklists(@RequestHeader("Authorization") String authHeader) {
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-			throw new RuntimeException("Missing or invalid Authorization header");
-		}
-
-		String token = authHeader.substring(7); // Strip "Bearer "
-		System.out.println(token);
-
-		String username = jwtUtil.extractName(token);
-		System.out.println(username);
-		if (!jwtUtil.isTokenValid(token, username)) {
-			throw new RuntimeException("Invalid or expired token");
-		}
-
-		// Fetch user by name
+	public List<ChecklistCreateDTO> getMyChecklists(HttpServletRequest request) {
+		String username = (String) request.getAttribute("username");
 		UserEntity user = userRepository.findByName(username)
 				.orElseThrow(() -> new RuntimeException("User not found"));
-
-		System.out.println(user);
-
 		return checklistService.getMyChecklists(user, checklistRepository);
-
 	}
 
 	@PostMapping("")
@@ -83,20 +68,10 @@ public class ChecklistController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized - Invalid JWT token"),
 			@ApiResponse(responseCode = "404", description = "User not found")
 	})
-	public ChecklistEntity createChecklist(@RequestHeader("Authorization") String authHeader,
-			@RequestBody ChecklistCreateDTO checkListRequest) {
+	public ChecklistEntity createChecklist(HttpServletRequest request,
+			@RequestBody ChecklistCreateRequestDTO checkListRequest) {
 		// Validate Authorization header
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-			throw new RuntimeException("Missing or invalid Authorization header");
-		}
-
-		// Extract and validate JWT token
-		String token = authHeader.substring(7); // Strip "Bearer "
-		String username = jwtUtil.extractName(token);
-		if (!jwtUtil.isTokenValid(token, username)) {
-			throw new RuntimeException("Invalid or expired token");
-		}
-
+		String username = (String) request.getAttribute("username");
 		UserEntity user = userRepository.findByName(username)
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -111,22 +86,13 @@ public class ChecklistController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized - Invalid JWT token"),
 			@ApiResponse(responseCode = "404", description = "User or checklist not found")
 	})
-	public String deleteChecklist(@RequestHeader("Authorization") String authHeader,
+	public String deleteChecklist(HttpServletRequest request,
 			@RequestBody ChecklistCreateDTO checkListRequest) {
-
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-			throw new RuntimeException("Missing or invalid Authorization header");
-		}
-
-		// Extract and validate JWT token
-		String token = authHeader.substring(7); // Strip "Bearer "
-		String username = jwtUtil.extractName(token);
-		if (!jwtUtil.isTokenValid(token, username)) {
-			throw new RuntimeException("Invalid or expired token");
-		}
-
+				// Here i will have to send the checklistId as well as i am deleting the checklist
+		String username = (String) request.getAttribute("username");
 		UserEntity user = userRepository.findByName(username)
 				.orElseThrow(() -> new RuntimeException("User not found"));
+
 		// Logic to delete a checklist
 		checklistService.deleteChecklist(checkListRequest, user, checklistRepository);
 		return "Checklist deleted successfully";
