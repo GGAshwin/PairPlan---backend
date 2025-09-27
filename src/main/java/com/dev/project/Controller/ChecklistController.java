@@ -37,16 +37,14 @@ public class ChecklistController {
 	private final WorkspaceRepository workspaceRepository;
 	private final UserRepository userRepository;
 	private final ChecklistRepository checklistRepository;
-	private final JwtUtil jwtUtil;
 
 	@Autowired
 	public ChecklistController(ChecklistService checklistService, WorkspaceRepository workspaceRepository,
-			UserRepository userRepository, ChecklistRepository checklistRepository, JwtUtil jwtUtil) {
+			UserRepository userRepository, ChecklistRepository checklistRepository) {
 		this.checklistService = checklistService;
 		this.workspaceRepository = workspaceRepository;
 		this.userRepository = userRepository;
 		this.checklistRepository = checklistRepository;
-		this.jwtUtil = jwtUtil;
 	}
 
 	@GetMapping("")
@@ -88,7 +86,7 @@ public class ChecklistController {
 	})
 	public String deleteChecklist(HttpServletRequest request,
 			@RequestBody ChecklistCreateDTO checkListRequest) {
-				// Here i will have to send the checklistId as well as i am deleting the checklist
+			// Here i will have to send the checklistId as well as i am deleting the checklist
 		String username = (String) request.getAttribute("username");
 		UserEntity user = userRepository.findByName(username)
 				.orElseThrow(() -> new RuntimeException("User not found"));
