@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.dev.project.Component.JwtUtil;
 import com.dev.project.DTO.ChecklistItemDTO;
 import com.dev.project.Entity.ChecklistItemEntity;
+import com.dev.project.Entity.UserEntity;
 import com.dev.project.Repository.ChecklistItemRepository;
 import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
@@ -34,23 +35,14 @@ public class ChecklistItemService {
 	}
 
 	// Method to create a new checklist item
-	public ChecklistItemEntity createChecklistItem(String jwtToken, ChecklistItemDTO checklistItemDTO, JwtUtil jwtUtil,
+	public ChecklistItemEntity createChecklistItem(UserEntity user, ChecklistItemDTO checklistItemDTO,
 			UserRepository userRepository, ChecklistRepository checklistRepository) {
 		// Extract username from JWT token
-		String username = jwtUtil.extractName(jwtToken);
-
-		// Validate token and check if user exists
-		var user = userRepository.findByName(username)
-				.orElseThrow(() -> new IllegalArgumentException("Invalid token or user does not exist"));
+		// String username = jwtUtil.extractName(jwtToken);
 
 		// Validate checklist ownership
 		var checklist = checklistRepository.findById(checklistItemDTO.getChecklistId())
 				.orElseThrow(() -> new IllegalArgumentException("Checklist does not exist"));
-
-		// if (!checklist.getCreatedBy().getId().equals(user.getId())) {
-		// throw new IllegalArgumentException("User is not authorized to add items to
-		// this checklist");
-		// }
 
 		var workspace = checklist.getWorkspace();
 		if (workspace == null || !workspace.getUsers().contains(user)) {
@@ -96,7 +88,14 @@ public class ChecklistItemService {
 	}
 
 	// Method to delete a checklist item
-	public void deleteChecklistItem(UUID checkListItemId, UUID checklistId) {
+	public void deleteChecklistItem(UUID checkListItemId, UUID checklistId, UserEntity userEntity) {
+		// Check if the user is allowed to delete the checklistItem
+		boolean isCreatedByUser = userEntity.getCreatedItems().stream().anyMatch(item -> item.getId().equals(checkListItemId));
+
+		if(!isCreatedByUser){
+			throw new IllegalArgumentException("User is not authorized to delete this checklist item");
+		}
+
 		// check if checklist exists
 		if (!checklistRepository.existsById(checklistId)) {
 			throw new IllegalArgumentException("Checklist does not exist");

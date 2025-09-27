@@ -18,9 +18,11 @@ import com.dev.project.DTO.MessageDTO;
 import com.dev.project.Component.JwtUtil;
 import com.dev.project.DTO.ChecklistItemDTO;
 import com.dev.project.Entity.ChecklistItemEntity;
+import com.dev.project.Entity.UserEntity;
 import com.dev.project.Repository.ChecklistRepository;
 import com.dev.project.Repository.UserRepository;
 import com.dev.project.Service.ChecklistItemService;
+import com.dev.project.Service.UserValidityService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,14 +38,16 @@ public class ChecklistItemsController {
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
 	private final ChecklistRepository checklistRepository;
+	private final UserValidityService userValidityService;
 
 	@Autowired
 	public ChecklistItemsController(ChecklistItemService checklistItemService, JwtUtil jwtUtil,
-			UserRepository userRepository, ChecklistRepository checklistRepository) {
+			UserRepository userRepository, ChecklistRepository checklistRepository, UserValidityService userValidityService) {
 		this.checklistItemService = checklistItemService;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
 		this.checklistRepository = checklistRepository;
+		this.userValidityService = userValidityService;
 	}
 
 	// Get all checklist items by checklist ID
@@ -53,8 +57,7 @@ public class ChecklistItemsController {
 			HttpServletRequest request) {
 
 		// Username is now available from the filter
-		String username = (String) request.getAttribute("username");
-
+		UserEntity user = userValidityService.isUserExists(request);
 		// You could add additional checks here if needed
 		// For example, verify if the user has access to this checklist
 
@@ -65,8 +68,9 @@ public class ChecklistItemsController {
 	public ResponseEntity<ChecklistItemEntity> createChecklistItem(
 			@RequestBody ChecklistItemDTO checklistItem,
 			HttpServletRequest request) {
-		String username = (String) request.getAttribute("username");
-		return ResponseEntity.ok(checklistItemService.createChecklistItem(username, checklistItem, jwtUtil,
+		UserEntity user = userValidityService.isUserExists(request);
+
+		return ResponseEntity.ok(checklistItemService.createChecklistItem(user, checklistItem,
 				userRepository, checklistRepository));
 	}
 
@@ -88,11 +92,11 @@ public class ChecklistItemsController {
 			@PathVariable UUID checklistId,
 			HttpServletRequest request) {
 
-		String username = (String) request.getAttribute("username");
+		UserEntity user = userValidityService.isUserExists(request);
 		// You could add additional checks here if needed
 		// For example, verify if the user has permission to delete this item
 
-		checklistItemService.deleteChecklistItem(checkItemId, checklistId);
+		checklistItemService.deleteChecklistItem(checkItemId, checklistId, user);
 		return ResponseEntity.ok().body(MessageDTO.success("Checklist item deleted successfully"));
 	}
 }
