@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // Define excluded paths that don't require JWT authentication
     private final List<String> excludedPaths = Arrays.asList(
             "/api/auth/login",
-            "/api/users" // POST to create user
+            "/api/user" // POST to create user
     );
 
     @Override
@@ -75,8 +75,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
-        // Check for user creation endpoint (POST to /api/users)
-        if ("/api/users".equals(requestPath) && "POST".equalsIgnoreCase(method)) {
+        // Check for user creation endpoint (POST to /api/user)
+        if ("/api/user".equals(requestPath) && "POST".equalsIgnoreCase(method)) {
             return true;
         }
 

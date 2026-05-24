@@ -85,6 +85,14 @@ public class ChecklistItemsController {
 				.ok(checklistItemService.updateChecklistItem(checklistId, checklistItemId, checklistItem, username));
 	}
 
+	// Toggle a checklist item's status
+	@PutMapping("/{checklistItemId}/toggle")
+	public ResponseEntity<ChecklistItemEntity> toggleChecklistItem(@PathVariable UUID checklistItemId,
+			HttpServletRequest request) {
+		String username = (String) request.getAttribute("username");
+		return ResponseEntity.ok(checklistItemService.toggleChecklistItem(checklistItemId, username));
+	}
+
 	// Delete a checklist item
 	@DeleteMapping("/checklist/{checklistId}/{checkItemId}")
 	public ResponseEntity<MessageDTO> deleteChecklistItem(

@@ -87,6 +87,24 @@ public class ChecklistItemService {
 		return checklistItemRepository.save(existingItem);
 	}
 
+	// Method to toggle a checklist item's status
+	public ChecklistItemEntity toggleChecklistItem(UUID checklistItemId, String username) {
+		var user = userRepository.findByName(username)
+				.orElseThrow(() -> new IllegalArgumentException("User does not exist"));
+
+		var checklistItem = checklistItemRepository.findById(checklistItemId)
+				.orElseThrow(() -> new IllegalArgumentException("Checklist item does not exist"));
+
+		var checklist = checklistItem.getChecklist();
+		var workspace = checklist.getWorkspace();
+		if (workspace == null || !workspace.getUsers().contains(user)) {
+			throw new IllegalArgumentException("User is not authorized to update this checklist item");
+		}
+
+		checklistItem.setChecked(!checklistItem.isChecked());
+		return checklistItemRepository.save(checklistItem);
+	}
+
 	// Method to delete a checklist item
 	public void deleteChecklistItem(UUID checkListItemId, UUID checklistId, UserEntity userEntity) {
 		// Check if the user is allowed to delete the checklistItem
