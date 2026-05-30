@@ -56,9 +56,9 @@ public class ChecklistController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized - Invalid JWT token"),
 			@ApiResponse(responseCode = "404", description = "User not found")
 	})
-	public List<ChecklistCreateDTO> getMyChecklists(HttpServletRequest request) {
+	public List<ChecklistCreateDTO> getMyChecklists(HttpServletRequest request, @org.springframework.web.bind.annotation.RequestParam("workspaceId") java.util.UUID workspaceId) {
 		UserEntity user = userValidityService.isUserExists(request);
-		return checklistService.getMyChecklists(user, checklistRepository);
+		return checklistService.getMyChecklists(user, workspaceId, checklistRepository);
 	}
 
 	@PostMapping("")

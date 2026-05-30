@@ -78,22 +78,21 @@ public class ChecklistService {
 		checklistRepository.delete(checklistOptional.get());
 	}
 
-	public List<ChecklistCreateDTO> getMyChecklists(UserEntity user, ChecklistRepository checklistRepository) {
+	public List<ChecklistCreateDTO> getMyChecklists(UserEntity user, java.util.UUID workspaceId, ChecklistRepository checklistRepository) {
 		if (user == null || user.getId() == null) {
 			throw new IllegalArgumentException("User is not authenticated or does not have an ID");
 		}
 
-		if (user.getWorkspace() == null || user.getWorkspace().getId() == null) {
-			throw new IllegalArgumentException("User is not associated with a valid workspace");
+		if (workspaceId == null) {
+			throw new IllegalArgumentException("Workspace ID is required");
+		}
+
+		if (user.getWorkspaces() == null || user.getWorkspaces().stream().noneMatch(w -> w.getId().equals(workspaceId))) {
+			throw new IllegalArgumentException("User is not associated with this workspace");
 		}
 
 		// Fetch all checklists from the user's workspace
-		var checklists = checklistRepository.findAllByWorkspaceId(user.getWorkspace().getId());
-
-		if (checklists.isEmpty()) {
-			throw new IllegalArgumentException(
-					"No checklists found for workspace with ID " + user.getWorkspace().getId());
-		}
+		var checklists = checklistRepository.findAllByWorkspaceId(workspaceId);
 
 		// Convert entity to DTO
 		return checklists.stream()

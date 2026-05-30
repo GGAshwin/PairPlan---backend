@@ -14,5 +14,4 @@ import lombok.Data;
 public class UserDTO {
     private UUID id;
     private String name;
-    private UUID workspaceId;
 }

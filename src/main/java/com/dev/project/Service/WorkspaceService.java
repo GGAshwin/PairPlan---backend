@@ -1,5 +1,7 @@
 package com.dev.project.Service;
 
+import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -54,20 +56,27 @@ public class WorkspaceService {
 			var workspaceToJoin = foundWorkspace.get();
 			var validUser = validUserOptional.get();
 
-			if (validUser.getWorkspace() != null) {
-				return "User already has a workspace!";
-			}
-
 			// Add user to the workspace
+			if (workspaceToJoin.getUsers() == null) {
+			    workspaceToJoin.setUsers(new ArrayList<>());
+			}
 			workspaceToJoin.getUsers().add(validUser);
-			validUser.setWorkspace(workspaceToJoin);
+			
+			if (validUser.getWorkspaces() == null) {
+			    validUser.setWorkspaces(new ArrayList<>());
+			}
+			// Check if already in workspace
+			boolean alreadyJoined = validUser.getWorkspaces().stream().anyMatch(w -> w.getId().equals(workspaceToJoin.getId()));
+			if (alreadyJoined) {
+			    return "User already in this workspace!";
+			}
+			
+			validUser.getWorkspaces().add(workspaceToJoin);
 
 			// Save changes
 			workspaceRepository.save(workspaceToJoin);
 			userRepository.save(validUser);
 
-			// Remove the join code after successful join
-			workspaceToJoin.setJoinCode(null);
 			return "Joined Workspace Successfully";
 		} else {
 			return "User not found!";

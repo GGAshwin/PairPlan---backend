@@ -93,7 +93,6 @@ public class UserController {
 		UserDTO userDTO = UserDTO.builder()
 				.id(user.getId())
 				.name(user.getName())
-				.workspaceId(user.getWorkspace() != null ? user.getWorkspace().getId() : null)
 				.build();
 
 		return ResponseEntity.ok(userDTO);

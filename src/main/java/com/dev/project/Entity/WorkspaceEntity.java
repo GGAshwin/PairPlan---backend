@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +43,7 @@ public class WorkspaceEntity {
 	@Column(name = "created_at")
 	private Date createdAt = new Date();
 
-	@OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL)
+	@ManyToMany(mappedBy = "workspaces")
 	private List<UserEntity> users = new ArrayList<>();
 
 	@OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL)

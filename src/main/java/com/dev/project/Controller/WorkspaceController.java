@@ -2,6 +2,7 @@ package com.dev.project.Controller;
 
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,10 +67,6 @@ public class WorkspaceController {
 		var userOptional = userRepository.findByName(userName);
 		if (userOptional.isPresent()) {
 			var validUser = userOptional.get();
-			if (validUser.getWorkspace() != null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already has a workspace!");
-			}
-
 			WorkspaceEntity workspaceEntity = workspaceService.createWorkspace(validUser);
 			if (workspaceEntity.getUsers() == null) {
 				workspaceEntity.setUsers(new ArrayList<>());
@@ -77,7 +74,10 @@ public class WorkspaceController {
 			workspaceEntity.getUsers().add(validUser);
 			workspaceRepository.save(workspaceEntity);
 
-			validUser.setWorkspace(workspaceEntity);
+			if (validUser.getWorkspaces() == null) {
+				validUser.setWorkspaces(new ArrayList<>());
+			}
+			validUser.getWorkspaces().add(workspaceEntity);
 			userRepository.save(validUser);
 
 			WorkspaceResponseDTO workspaceResponseDTO = WorkspaceResponseDTO.builder()
@@ -126,11 +126,42 @@ public class WorkspaceController {
 					.body(MessageDTO.error("Join Code not found!"));
 			case "User not found!" -> ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(MessageDTO.error("User not found!"));
-			case "User already has a workspace!" -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(MessageDTO.error("User already has a workspace!"));
+			case "User already in this workspace!" -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(MessageDTO.error("User already in this workspace!"));
 			default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(MessageDTO.error("An unexpected error occurred!"));
 		};
+	}
+
+	@GetMapping("/my-workspaces")
+	public ResponseEntity<Object> getMyWorkspaces(@RequestHeader("Authorization") String authHeader) {
+		String token = authHeader.replace("Bearer ", "");
+		String userName;
+
+		try {
+			userName = jwtUtil.extractName(token);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token!");
+		}
+
+		var userOptional = userRepository.findByName(userName);
+		if (userOptional.isPresent()) {
+			var validUser = userOptional.get();
+			var workspaces = validUser.getWorkspaces();
+			if (workspaces == null) workspaces = new ArrayList<>();
+
+			List<WorkspaceResponseDTO> dtos = workspaces.stream().map(workspaceEntity -> 
+				WorkspaceResponseDTO.builder()
+					.id(workspaceEntity.getId())
+					.name(workspaceEntity.getName())
+					.joinCode(workspaceEntity.getJoinCode())
+					.createdAt(workspaceEntity.getCreatedAt())
+					.build()
+			).toList();
+			
+			return ResponseEntity.ok(dtos);
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found!!");
 	}
 
 	@GetMapping("/{workspaceId}")

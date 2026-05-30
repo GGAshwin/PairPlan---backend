@@ -38,6 +38,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestPath = request.getRequestURI();
         String method = request.getMethod();
 
+        // Allow CORS preflight requests
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Skip JWT validation for excluded paths
         if (isExcludedPath(requestPath, method)) {
             filterChain.doFilter(request, response);
@@ -61,12 +67,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Add username to request attributes for controllers to use
             request.setAttribute("username", username);
 
-            // Continue with the filter chain
-            filterChain.doFilter(request, response);
-
         } catch (Exception e) {
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "Invalid or expired token!");
+            return;
         }
+        
+        // Continue with the filter chain
+        filterChain.doFilter(request, response);
     }
 
     private boolean isExcludedPath(String requestPath, String method) {

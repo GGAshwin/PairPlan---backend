@@ -10,7 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +29,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"workspace", "createdChecklists", "createdItems"})
+@ToString(exclude = {"workspaces", "createdChecklists", "createdItems"})
 public class UserEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -38,10 +39,14 @@ public class UserEntity {
 
 	private String password;
 
-	@ManyToOne
-	@JoinColumn(name = "workspace_id", nullable = true)
+	@ManyToMany
+	@JoinTable(
+		name = "user_workspace",
+		joinColumns = @JoinColumn(name = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "workspace_id")
+	)
 	@JsonIgnore
-	private WorkspaceEntity workspace;
+	private List<WorkspaceEntity> workspaces;
 
 	@OneToMany(mappedBy = "createdBy")
 	private List<ChecklistEntity> createdChecklists;
